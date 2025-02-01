@@ -1,27 +1,26 @@
+# Makefile for systemmon
+
 CC = gcc
-CFLAGS = -Wall -Wextra -O2
-LDFLAGS =
+CFLAGS = -Wall -Wextra -Iinclude
+OBJDIR = obj
+SRCDIR = src
+INCLUDEDIR = include
+TARGET = systemmon
 
-SRCS = main.c cpu.c memory.c disk.c network.c load.c user.c battery.c firewall.c
-OBJS = $(SRCS:.c=.o)
+SRC = $(wildcard $(SRCDIR)/*.c)
+OBJ = $(patsubst $(SRCDIR)/%.c, $(OBJDIR)/%.o, $(SRC))
 
-TARGET = sysmon
+.PHONY: all clean
 
 all: $(TARGET)
 
-$(TARGET): $(OBJS)
-	$(CC) $(CFLAGS) -o $@ $^ $(LDFLAGS)
+$(TARGET): $(OBJ)
+	$(CC) $(CFLAGS) -o $@ $^
 
-%.o: %.c
-	$(CC) $(CFLAGS) -c $<
-
-install: $(TARGET)
-	install -m 755 $(TARGET) /usr/local/bin/
-
-uninstall:
-	rm -f /usr/local/bin/$(TARGET)
+$(OBJDIR)/%.o: $(SRCDIR)/%.c
+	@mkdir -p $(OBJDIR)
+	$(CC) $(CFLAGS) -c $< -o $@
 
 clean:
-	rm -f $(TARGET) $(OBJS)
+	rm -rf $(OBJDIR) $(TARGET)
 
-.PHONY: all install uninstall clean
